@@ -144,7 +144,7 @@ public void registrarPedidoYPedidosDetalle(PedidoDTO pedidoDto, List<DetallePedi
             throw new PersistenciaException("Error al actualizar el estado del pedido: " + e.getMessage(), e);
         }
     }
-
+ 
    public PedidoDTO verPedido(String nombreSala, int numMesa) throws PersistenciaException {
     try {
         return pedidosDAO.obtenerPedidoPorSalaYMesa(nombreSala, numMesa);

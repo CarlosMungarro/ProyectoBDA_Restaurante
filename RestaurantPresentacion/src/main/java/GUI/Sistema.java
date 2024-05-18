@@ -1761,17 +1761,17 @@ public class Sistema extends javax.swing.JFrame {
 
     private void btnFinalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizarActionPerformed
         // TODO add your handling code here:
- try {
-        String idPedido = txtIdHistorialPedido.getText();
-        pedidoBO.finalizarPedido(idPedido);
-        JOptionPane.showMessageDialog(this, "Pedido finalizado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        
-        // Opcional: Actualizar la vista o realizar alguna otra acción
-        // Por ejemplo, limpiar campos o refrescar la lista de pedidos
-    } catch (PersistenciaException e) {
-        JOptionPane.showMessageDialog(this, "Error al finalizar el pedido: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        Logger.getLogger(Sistema.class.getName()).log(Level.SEVERE, "Error al finalizar el pedido", e);
-    }
+        try {
+            String idPedido = txtIdHistorialPedido.getText();
+            pedidoBO.finalizarPedido(idPedido);
+            JOptionPane.showMessageDialog(this, "Pedido finalizado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            // Opcional: Actualizar la vista o realizar alguna otra acción
+            // Por ejemplo, limpiar campos o refrescar la lista de pedidos
+        } catch (PersistenciaException e) {
+            JOptionPane.showMessageDialog(this, "Error al finalizar el pedido: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            Logger.getLogger(Sistema.class.getName()).log(Level.SEVERE, "Error al finalizar el pedido", e);
+        }
     }//GEN-LAST:event_btnFinalizarActionPerformed
 
     private void txtIdConfigActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIdConfigActionPerformed
@@ -1912,46 +1912,39 @@ public class Sistema extends javax.swing.JFrame {
     }//GEN-LAST:event_TablePlatosMouseClicked
 
     private void TablePedidosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablePedidosMouseClicked
-        // Obtener la fila seleccionada en la tabla
-    int fila = TablePedidos.rowAtPoint(evt.getPoint());
+        int fila = TablePedidos.rowAtPoint(evt.getPoint());
 
-    // Verificar si la fila seleccionada es válida
-    if (fila >= 0 && fila < TablePedidos.getRowCount()) {
-        // Obtener el nombre del pedido de la fila seleccionada
-        String nombrePedido = TablePedidos.getValueAt(fila, 0).toString();
+        // Verificar si la fila seleccionada es válida y si la tabla tiene datos
+        if (fila >= 0 && fila < TablePedidos.getRowCount() && TablePedidos.getRowCount() > 0) {
+            // Verificar si existen suficientes columnas y si los valores son válidos
+            if (TablePedidos.getColumnCount() > 2) {
+                try {
+                    String nombrePedido = TablePedidos.getValueAt(fila, 0).toString();
+                    String nombreSala = TablePedidos.getValueAt(fila, 1) != null ? TablePedidos.getValueAt(fila, 1).toString() : ""; // Manejar nulos
+                    String numMesaStr = TablePedidos.getValueAt(fila, 2) != null ? TablePedidos.getValueAt(fila, 2).toString() : ""; // Manejar nulos
 
-        // Limpiar la tabla antes de mostrar los detalles del pedido
-        LimpiarTable();
-
-        try {
-            // Verificar si la columna de nombre de sala existe y contiene datos
-            if (TablePedidos.getColumnCount() > 1 && TablePedidos.getValueAt(fila, 1) != null) {
-                // Obtener el nombre de la sala y el número de mesa del pedido seleccionado
-                String nombreSala = TablePedidos.getValueAt(fila, 1).toString();
-                int numMesa = Integer.parseInt(TablePedidos.getValueAt(fila, 2).toString());
-
-                // Mostrar la información del pedido y sus detalles
-                verPedidoYDetalle(nombreSala, numMesa);
-
-                // Seleccionar la pestaña que muestra los detalles del pedido
-                jTabbedPane1.setSelectedIndex(4);
-
-                // Deshabilitar el botón de finalizar
-                btnFinalizar.setEnabled(false);
-
-                // Mostrar el nombre del pedido en el campo correspondiente
-                txtIdHistorialPedido.setText(nombrePedido);
+                    // Verificar si los valores son válidos (no nulos ni vacíos)
+                    if (!nombreSala.isEmpty() && !numMesaStr.isEmpty()) {
+                        try {
+                            int numMesa = Integer.parseInt(numMesaStr);
+                            verPedidoYDetalle(nombreSala, numMesa);
+                            // ... (resto del código para mostrar detalles)
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(this, "Error al convertir el número de mesa.", "Error", JOptionPane.ERROR_MESSAGE);
+                            Logger.getLogger(Sistema.class.getName()).log(Level.SEVERE, "Error de conversión de número de mesa", ex);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(this, "La fila seleccionada no contiene datos completos o válidos.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                    }
+                } catch (PersistenciaException ex) {
+                    Logger.getLogger(Sistema.class.getName()).log(Level.SEVERE, "Ocurrió un error", ex);
+                    // Considera mostrar un mensaje de error al usuario aquí también
+                }
             } else {
-                // Manejar el caso en que la columna de nombre de sala no exista o esté vacía
-                // Por ejemplo, mostrar un mensaje de advertencia
-                JOptionPane.showMessageDialog(this, "La fila seleccionada no contiene datos de nombre de sala.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "La tabla no tiene suficientes columnas.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (NumberFormatException | PersistenciaException ex) {
-            // Manejar la excepción si ocurre algún error al obtener el pedido y sus detalles
-            // Por ejemplo, mostrar un mensaje de error o registrar el error en algún registro
-            Logger.getLogger(Sistema.class.getName()).log(Level.SEVERE, "Ocurrió un error", ex);
         }
-    }
+
     }//GEN-LAST:event_TablePedidosMouseClicked
 
     private void tableSalaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableSalaMouseClicked
@@ -2084,39 +2077,38 @@ public class Sistema extends javax.swing.JFrame {
 //
 
     private void RegistrarPedido() throws PersistenciaException {
-    try {
-        // Obtener valores del formulario
-        String nombreSala = txtTempIdSala.getText();
-        int numMesa = Integer.parseInt(txtTempNumMesa.getText());
-        double total = Double.parseDouble(totalMenu.getText());
-        String usuario = LabelVendedor.getText();
-        String estado = "PENDIENTE";
+        try {
+            // Obtener valores del formulario
+            String nombreSala = txtTempIdSala.getText();
+            int numMesa = Integer.parseInt(txtTempNumMesa.getText());
+            double total = Double.parseDouble(totalMenu.getText());
+            String usuario = LabelVendedor.getText();
+            String estado = "PENDIENTE";
 
-        // Crear objeto DTO con los valores obtenidos
-        PedidoDTO pedidoDto = new PedidoDTO();
-        pedidoDto.setNombreSala(nombreSala);
-        pedidoDto.setNumMesa(numMesa);
-        pedidoDto.setFecha(new Date());
-        pedidoDto.setEstado(estado);
-        pedidoDto.setTotal(total);
-        pedidoDto.setUsuario(usuario);
+            // Crear objeto DTO con los valores obtenidos
+            PedidoDTO pedidoDto = new PedidoDTO();
+            pedidoDto.setNombreSala(nombreSala);
+            pedidoDto.setNumMesa(numMesa);
+            pedidoDto.setFecha(new Date());
+            pedidoDto.setEstado(estado);
+            pedidoDto.setTotal(total);
+            pedidoDto.setUsuario(usuario);
 
-        // Obtener los detalles del pedido desde la tabla de la interfaz de usuario
-        List<DetallePedidoDTO> detalles = obtenerDetallesPedido();
+            // Obtener los detalles del pedido desde la tabla de la interfaz de usuario
+            List<DetallePedidoDTO> detalles = obtenerDetallesPedido();
 
-        // Registrar el pedido y sus detalles
-        pedidoBO.registrarPedidoYPedidosDetalle(pedidoDto, detalles);
+            // Registrar el pedido y sus detalles
+            pedidoBO.registrarPedidoYPedidosDetalle(pedidoDto, detalles);
 
-        // Mostrar mensaje de éxito al usuario
-        JOptionPane.showMessageDialog(this, "Pedido registrado.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Por favor, ingrese un número válido para el número de mesa.", "Error", JOptionPane.ERROR_MESSAGE);
-    } catch (PersistenciaException ex) {
-        JOptionPane.showMessageDialog(this, "Error al registrar el pedido y sus detalles: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        Logger.getLogger(Sistema.class.getName()).log(Level.SEVERE, "Ocurrió un error al registrar el pedido", ex);
+            // Mostrar mensaje de éxito al usuario
+            JOptionPane.showMessageDialog(this, "Pedido registrado.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingrese un número válido para el número de mesa.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (PersistenciaException ex) {
+            JOptionPane.showMessageDialog(this, "Error al registrar el pedido y sus detalles: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            Logger.getLogger(Sistema.class.getName()).log(Level.SEVERE, "Ocurrió un error al registrar el pedido", ex);
+        }
     }
-}
-
 
     private List<DetallePedidoDTO> obtenerDetallesPedido() {
         List<DetallePedidoDTO> detallesPedido = new ArrayList<>();
@@ -2226,48 +2218,48 @@ public class Sistema extends javax.swing.JFrame {
         }
     }
 
-   public void verPedidoYDetalle(String nombreSala, int numMesa) throws PersistenciaException {
-    try {
-        // Obtener el pedido y sus detalles
-        PedidoDTO pedido = pedidoBO.verPedido(nombreSala, numMesa);
-        if (pedido != null) {
-            List<DetallePedidoDTO> detalles = pedido.getDetalles();
+    public void verPedidoYDetalle(String nombreSala, int numMesa) throws PersistenciaException {
+        try {
+            // Obtener el pedido y sus detalles
+            PedidoDTO pedido = pedidoBO.verPedido(nombreSala, numMesa);
+            if (pedido != null) {
+                List<DetallePedidoDTO> detalles = pedido.getDetalles();
 
-            // Mostrar la información del pedido en los campos correspondientes
-            totalFinalizar.setText(String.valueOf(pedido.getTotal()));
-            txtSalaFinalizar.setText(nombreSala);
-            txtNumMesaFinalizar.setText(String.valueOf(numMesa));
-            txtIdHistorialPedido.setText(pedido.getNombreSala());
-            txtIdPedido.setText(pedido.getNombreSala());
+                // Mostrar la información del pedido en los campos correspondientes
+                totalFinalizar.setText(String.valueOf(pedido.getTotal()));
+                txtSalaFinalizar.setText(nombreSala);
+                txtNumMesaFinalizar.setText(String.valueOf(numMesa));
+                txtIdHistorialPedido.setText(pedido.getNombreSala());
+                txtIdPedido.setText(pedido.getNombreSala());
 
-            // Limpiar el modelo de la tabla antes de agregar los nuevos detalles
-            DefaultTableModel modelo = (DefaultTableModel) tableFinalizar.getModel();
-            modelo.setRowCount(0);
+                // Limpiar el modelo de la tabla antes de agregar los nuevos detalles
+                DefaultTableModel modelo = (DefaultTableModel) tableFinalizar.getModel();
+                modelo.setRowCount(0);
 
-            // Mostrar los detalles del pedido en la tabla
-            for (DetallePedidoDTO detalle : detalles) {
-                Object[] ob = new Object[5];
-                ob[0] = detalle.getNombre();  // Nombre del producto
-                ob[1] = detalle.getCantidad();  // Cantidad
-                ob[2] = detalle.getPrecio();  // Precio unitario
-                ob[3] = detalle.getCantidad() * detalle.getPrecio();  // Precio total
-                ob[4] = detalle.getComentario();  // Comentario
-                
-                modelo.addRow(ob);
+                // Mostrar los detalles del pedido en la tabla
+                for (DetallePedidoDTO detalle : detalles) {
+                    Object[] ob = new Object[5];
+                    ob[0] = detalle.getNombre();  // Nombre del producto
+                    ob[1] = detalle.getCantidad();  // Cantidad
+                    ob[2] = detalle.getPrecio();  // Precio unitario
+                    ob[3] = detalle.getCantidad() * detalle.getPrecio();  // Precio total
+                    ob[4] = detalle.getComentario();  // Comentario
+
+                    modelo.addRow(ob);
+                }
+
+                // Aplicar el estilo al encabezado de la tabla
+                colorHeader(tableFinalizar);
+            } else {
+                // Manejar el caso en que no se encuentre el pedido
+                JOptionPane.showMessageDialog(this, "No se encontró el pedido para la sala y mesa especificadas.", "Pedido no encontrado", JOptionPane.WARNING_MESSAGE);
             }
-
-            // Aplicar el estilo al encabezado de la tabla
-            colorHeader(tableFinalizar);
-        } else {
-            // Manejar el caso en que no se encuentre el pedido
-            JOptionPane.showMessageDialog(this, "No se encontró el pedido para la sala y mesa especificadas.", "Pedido no encontrado", JOptionPane.WARNING_MESSAGE);
+        } catch (PersistenciaException e) {
+            // Manejar la excepción si ocurre algún error al obtener el pedido y sus detalles
+            JOptionPane.showMessageDialog(this, "Error al obtener el pedido y sus detalles: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            Logger.getLogger(Sistema.class.getName()).log(Level.SEVERE, "Error al obtener el pedido y sus detalles", e);
         }
-    } catch (PersistenciaException e) {
-        // Manejar la excepción si ocurre algún error al obtener el pedido y sus detalles
-        JOptionPane.showMessageDialog(this, "Error al obtener el pedido y sus detalles: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        Logger.getLogger(Sistema.class.getName()).log(Level.SEVERE, "Error al obtener el pedido y sus detalles", e);
     }
-}
 
 //
 ////
@@ -2325,7 +2317,6 @@ public class Sistema extends javax.swing.JFrame {
 //        }
 //    }
 //
-
     private void ListarPedidos() throws PersistenciaException {
         try {
             TablesDTO color = new TablesDTO();
