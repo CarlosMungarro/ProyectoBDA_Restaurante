@@ -4,6 +4,7 @@
  */
 package DAO;
 
+import Conexion.ConexionBD;
 import Entidades.Config;
 import Interfaces.IConfigDAO;
 import Persistencia.PersistenciaException;
@@ -22,13 +23,13 @@ public class ConfigDAO implements IConfigDAO {
     private final MongoDatabase database;
     private static ConfigDAO instance;
 
-    public ConfigDAO(MongoDatabase database) {
-        this.database = database;
+    public ConfigDAO() {
+        this.database = ConexionBD.getDatabase(); 
     }
 
-    public static ConfigDAO getInstance(MongoDatabase database) {
+    public static ConfigDAO getInstance() {
         if (instance == null) {
-            instance = new ConfigDAO(database);
+            instance = new ConfigDAO();
         }
         return instance;
     }

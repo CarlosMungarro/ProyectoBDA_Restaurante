@@ -15,13 +15,13 @@ import org.bson.types.ObjectId;
  */
 public interface ISalasDAO {
 
-   boolean RegistrarSala(Sala sl) throws PersistenciaException;
+    boolean RegistrarSala(Sala sl) throws PersistenciaException;
 
     List<Sala> Listar() throws PersistenciaException;
 
-    boolean Eliminar(ObjectId id) throws PersistenciaException;
+    boolean Eliminar(String id) throws PersistenciaException;
 
-    boolean Modificar(Sala sl) throws PersistenciaException;
+    boolean modificarSala(String nombreOriginal, Sala plato) throws PersistenciaException;
 
     Sala obtenerSalaPorId(ObjectId idSala) throws PersistenciaException;
 

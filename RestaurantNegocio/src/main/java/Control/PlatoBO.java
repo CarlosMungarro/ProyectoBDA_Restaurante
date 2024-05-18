@@ -55,23 +55,23 @@ public class PlatoBO {
         }
     }
 
-    public boolean eliminarPlato(ObjectId id) throws PersistenciaException {
-        try {
-            return platosDAO.Eliminar(id);
-        } catch (PersistenciaException e) {
-            throw new PersistenciaException("Error al eliminar el plato: " + e.getMessage(), e);
-        }
+   public boolean eliminarPlato(String nombrePlato) throws PersistenciaException {
+    try {
+        return platosDAO.Eliminar(nombrePlato);
+    } catch (PersistenciaException e) {
+        throw new PersistenciaException("Error al eliminar el plato: " + e.getMessage(), e);
     }
+}
 
-    public boolean modificarPlato(PlatosDTO platoDTO) throws PersistenciaException {
-        try {
-            // Convertir de DTO a entidad antes de modificar el plato
-            Plato plato = convertirAEntidad(platoDTO);
-            return platosDAO.Modificar(plato);
-        } catch (PersistenciaException e) {
-            throw new PersistenciaException("Error al modificar el plato: " + e.getMessage(), e);
-        }
+    public boolean modificarPlato(String nombreOriginal, PlatosDTO platoDTO) throws PersistenciaException {
+    try {
+        // Convertir de DTO a entidad antes de modificar el plato
+        Plato plato = convertirAEntidad(platoDTO);
+        return platosDAO.modificarPlato(nombreOriginal, plato);
+    } catch (PersistenciaException e) {
+        throw new PersistenciaException("Error al modificar el plato: " + e.getMessage(), e);
     }
+}
 
     // Método para convertir de DTO a entidad
     private Plato convertirAEntidad(PlatosDTO platoDTO) {

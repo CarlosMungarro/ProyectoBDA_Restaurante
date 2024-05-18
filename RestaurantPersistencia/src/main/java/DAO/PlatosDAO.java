@@ -63,25 +63,29 @@ public class PlatosDAO implements IPlatosDAO {
     }
 
     @Override
-    public boolean Eliminar(ObjectId id) throws PersistenciaException {
-        try {
-            MongoCollection<Plato> collection = database.getCollection("platos", Plato.class);
-            DeleteResult result = collection.deleteOne(eq("_id", id));
-            return result.getDeletedCount() > 0;
-        } catch (Exception e) {
-            throw new PersistenciaException("Error al eliminar el plato: " + e.getMessage(), e);
-        }
+    public boolean Eliminar(String nombrePlato) throws PersistenciaException {
+    try {
+        MongoCollection<Plato> collection = database.getCollection("platos", Plato.class);
+        DeleteResult result = collection.deleteOne(eq("nombre", nombrePlato));
+        return result.getDeletedCount() > 0;
+    } catch (Exception e) {
+        throw new PersistenciaException("Error al eliminar el plato: " + e.getMessage(), e);
     }
+}
 
     @Override
-    public boolean Modificar(Plato plato) throws PersistenciaException {
-        try {
-            MongoCollection<Plato> collection = database.getCollection("platos", Plato.class);
-            UpdateResult result = collection.replaceOne(eq("_id", plato.getId()), plato);
-            return result.getModifiedCount() > 0;
-        } catch (Exception e) {
-            throw new PersistenciaException("Error al modificar el plato: " + e.getMessage(), e);
-        }
+    public boolean modificarPlato(String nombreOriginal, Plato plato) throws PersistenciaException {
+    try {
+        MongoCollection<Plato> collection = database.getCollection("platos", Plato.class);
+        UpdateResult result = collection.replaceOne(eq("nombre", nombreOriginal), plato);
+        
+        // Imprimir resultado para depuración
+        System.out.println("Documentos modificados: " + result.getModifiedCount());
+        
+        return result.getModifiedCount() > 0;
+    } catch (Exception e) {
+        throw new PersistenciaException("Error al modificar el plato: " + e.getMessage(), e);
     }
+}
 
 }

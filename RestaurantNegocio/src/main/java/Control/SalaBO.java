@@ -23,13 +23,13 @@ public class SalaBO {
   private static SalaBO instance;
     private SalasDAO salasDAO;
 
-     private SalaBO(MongoDatabase database) {
-        salasDAO = SalasDAO.getInstance(database);
+    private SalaBO() {
+        salasDAO = new SalasDAO(); 
     }
 
-    public static SalaBO getInstance(MongoDatabase database) {
+    public static SalaBO getInstance() {
         if (instance == null) {
-            instance = new SalaBO(database);
+            instance = new SalaBO();
         }
         return instance;
     }
@@ -57,22 +57,22 @@ public class SalaBO {
         }
     }
     
-    public boolean eliminarSala(ObjectId id) throws PersistenciaException {
-        try {
-            return salasDAO.Eliminar(id);
-        } catch (PersistenciaException e) {
-            throw new PersistenciaException("Error al eliminar la sala: " + e.getMessage(), e);
-        }
+    public boolean eliminarSala(String nombreSala) throws PersistenciaException {
+    try {
+        return salasDAO.Eliminar(nombreSala);
+    } catch (PersistenciaException e) {
+        throw new PersistenciaException("Error al eliminar la sala: " + e.getMessage(), e);
     }
+}
     
-    public boolean modificarSala(SalaDTO salaDTO) throws PersistenciaException {
-        try {
-            Sala sala = convertirASala(salaDTO);
-            return salasDAO.Modificar(sala);
-        } catch (PersistenciaException e) {
-            throw new PersistenciaException("Error al modificar la sala: " + e.getMessage(), e);
-        }
+    public boolean modificarSala(String nombreOriginal, SalaDTO salaDTO) throws PersistenciaException {
+    try {
+        Sala sala = convertirASala(salaDTO);
+        return salasDAO.modificarSala(nombreOriginal, sala);
+    } catch (PersistenciaException e) {
+        throw new PersistenciaException("Error al modificar la sala: " + e.getMessage(), e);
     }
+}
     
     public SalaDTO obtenerSalaPorId(ObjectId idSala) throws PersistenciaException {
         try {

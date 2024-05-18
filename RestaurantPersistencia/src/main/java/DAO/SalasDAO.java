@@ -4,6 +4,7 @@
  */
 package DAO;
 
+import Conexion.ConexionBD;
 import Entidades.Sala;
 import Interfaces.ISalasDAO;
 import Persistencia.PersistenciaException;
@@ -25,13 +26,13 @@ public class SalasDAO implements ISalasDAO {
    private final MongoDatabase database;
     private static SalasDAO instance;
 
-    public SalasDAO(MongoDatabase database) {
-        this.database = database;
+    public SalasDAO() {
+        this.database = ConexionBD.getDatabase(); 
     }
 
-    public static SalasDAO getInstance(MongoDatabase database) {
+    public static SalasDAO getInstance() {
         if (instance == null) {
-            instance = new SalasDAO(database);
+            instance = new SalasDAO();
         }
         return instance;
     }
@@ -60,26 +61,30 @@ public class SalasDAO implements ISalasDAO {
     }
 
     @Override
-    public boolean Eliminar(ObjectId id) throws PersistenciaException {
-        try {
-            MongoCollection<Sala> collection = database.getCollection("salas", Sala.class);
-            DeleteResult result = collection.deleteOne(eq("_id", id));
-            return result.getDeletedCount() > 0;
-        } catch (Exception e) {
-            throw new PersistenciaException("Error al eliminar la sala: " + e.getMessage(), e);
-        }
+    public boolean Eliminar(String nombreSala) throws PersistenciaException {
+    try {
+        MongoCollection<Sala> collection = database.getCollection("salas", Sala.class);
+        DeleteResult result = collection.deleteOne(eq("nombre", nombreSala));
+        return result.getDeletedCount() > 0;
+    } catch (Exception e) {
+        throw new PersistenciaException("Error al eliminar la sala: " + e.getMessage(), e);
+    }
     }
 
     @Override
-    public boolean Modificar(Sala sl) throws PersistenciaException {
-        try {
-            MongoCollection<Sala> collection = database.getCollection("salas", Sala.class);
-            UpdateResult result = collection.replaceOne(eq("_id", sl.getId()), sl);
-            return result.getModifiedCount() > 0;
-        } catch (Exception e) {
-            throw new PersistenciaException("Error al modificar la sala: " + e.getMessage(), e);
-        }
+    public boolean modificarSala(String nombreOriginal, Sala plato) throws PersistenciaException {
+    try {
+        MongoCollection<Sala> collection = database.getCollection("salas", Sala.class);
+        UpdateResult result = collection.replaceOne(eq("nombre", nombreOriginal), plato);
+        
+        // Imprimir resultado para depuración
+        System.out.println("Documentos modificados: " + result.getModifiedCount());
+        
+        return result.getModifiedCount() > 0;
+    } catch (Exception e) {
+        throw new PersistenciaException("Error al modificar el plato: " + e.getMessage(), e);
     }
+}
 
     @Override
     public Sala obtenerSalaPorId(ObjectId idSala) throws PersistenciaException {

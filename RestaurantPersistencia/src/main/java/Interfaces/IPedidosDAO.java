@@ -4,8 +4,7 @@
  */
 package Interfaces;
 
-import DTO.DetallePedidoDTO;
-import DTO.PedidoDTO;
+
 import Entidades.DetallePedido;
 import Entidades.Pedido;
 import Persistencia.PersistenciaException;
@@ -21,15 +20,15 @@ public interface IPedidosDAO {
 
     ObjectId obtenerUltimoIdPedido();
 
-    ObjectId verificarEstado(int mesa, ObjectId id_sala);
+     public String verificarEstado(int mesa, String nombreSala);
 
-    List<Pedido> listarPedidos() throws PersistenciaException;
+    public List<Pedido> listarPedidos(String nombreSala, int numMesa) throws PersistenciaException;
 
     public void registrarPedidoYPedidosDetalle(Pedido pedido) throws PersistenciaException;
 
     boolean actualizarEstado(ObjectId idPedido) throws PersistenciaException;
 
-    Pedido verPedido(ObjectId idPedido) throws PersistenciaException;
+    public Pedido verPedido(String nombreSala, int numMesa) throws PersistenciaException;
 
     List<DetallePedido> listarDetallesPedido(ObjectId pedidoId) throws PersistenciaException;
 
